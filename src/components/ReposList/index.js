@@ -1,38 +1,39 @@
-import {useState} from 'react'
-import ReposListItems from '../ReposListItems'
-import './index.css'
+import {Component} from 'react'
+import RepoItem from '../RepoItem'
 
-const ReposList = () => {
-  const [username, setUsername] = useState('')
+class ReposList extends Component {
+  state = {reposData: []}
 
-  const onChangeUsername = event => {
-    setUsername(event.target.value)
+  componentDidMount = () => {
+    this.getReposData()
   }
 
-  const onSubmitBtn = event => {
-    event.preventDefault()
+  getReposData = async () => {
+    const response = await fetch('https://api.github.com/users/gagandatt')
+    const data = response.json()
+    // console.log(data)
+
+    const updatedData = data.map(eachItem => ({
+      id: eachItem.id,
+      avatarUrl: eachItem.avatar_url,
+      name: eachItem.name,
+      bio: eachItem.bio,
+      followers: eachItem.followers,
+      following: eachItem.following,
+    }))
+    // console.log(updatedData)
+    this.setState({reposData: updatedData})
   }
 
-  return (
-    <>
-      <div className="container">
-        <input
-          type="text"
-          className="search"
-          value={username}
-          onChange={onChangeUsername}
-        />
-        <button type="submit" className="submit-btn" onSubmit={onSubmitBtn}>
-          Submit
-        </button>
-      </div>
-      <div>
-        <ul className="ul-container">
-          <ReposListItems />
-        </ul>
-      </div>
-    </>
-  )
+  render() {
+    const {reposData} = this.state
+    return (
+      <ul className="ul-container">
+        {reposData.map(item => (
+          <RepoItem repoData={item} key={item.id} />
+        ))}
+      </ul>
+    )
+  }
 }
-
 export default ReposList
